@@ -1,0 +1,36 @@
+{
+    "tasks": [
+        {
+            "label": "编译并运行 test.c",
+            "type": "shell",
+            "command": "test.exe",
+            "dependsOn": "编译 test.c",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": false
+            },
+            "detail": "先编译，再直接运行 test.exe"
+        },
+        {
+            "label": "编译 test.c",
+            "type": "shell",
+            "command": "C:\\mingw64\\bin\\gcc.exe -fdiagnostics-color=always -Wall -g -I include test\\test.c src\\*.c -o test.exe",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "用 src/*.c 通配符自动编译所有源文件"
+        },
+    ],
+    "version": "2.0.0"
+}

@@ -1,0 +1,106 @@
+==================================================  
+ C 项目编译运行命令速查  (commands.txt)  
+ 项目路径: d:\algorithm_lab  
+ 编译工具: MinGW gcc  (C:\mingw64\bin\gcc.exe)  
+==================================================  
+  
+【一】当前项目文件说明  
+ test.c       入口/测试文件(主函数所在)  
+ sort.c/h     排序算法(随机数组、冒泡/选择/插入/归并/快排)  
+ search.c/h   查找(线性查找、二分查找)  
+ others.c/h   其他算法(欧几里得、汉诺塔、快速幂、最近点对)  
+ tree.c/h     空模板(还没写内容)  
+  
+【二】终端编译运行核心命令(当前单层目录结构)  
+ 1. 进入项目目录  
+    cd /d d:\algorithm_lab  
+  
+ 2. 编译(4个c文件必须一起编译链接)  
+    gcc -Wall -g test.c sort.c others.c search.c -o test.exe  
+  
+ 3. 运行  
+    test.exe    (或 .\test.exe)  
+ 
+ 4. 一条命令 编译+运行(用 && 连接,编译成功才运行)  
+    gcc -Wall -g test.c sort.c others.c search.c -o test.exe && test.exe  
+  
+ 参数说明:  
+    -Wall  打开所有常见警告(推荐每次加)  
+    -g     生成调试信息(gdb调试必须加)  
+    -o     指定输出文件名(不加默认 a.exe)  
+    多个 .c 文件必须一起写,缺一个就报 undefined reference  
+  
+ 常用技巧:  
+    ↑ 上箭头    调出上一条命令  
+    cls         清屏  
+    dir         查看目录文件  
+    del 文件名  删除文件(如 del test.exe)  
+    errorlevel  上一条命令的错误码,0 表示成功  
+ 
+【三】推荐的三文件夹结构  
+ algorithm_lab/  
+ ├─ include/   头文件: sort.h search.h others.h  
+ ├─ src/       函数实现: sort.c search.c others.c  
+ ├─ test/      测试文件: test.c  
+ ├─ .vscode/   VSCode配置(tasks.json, launch.json)  
+ └─ test.exe   编译产物  
+  
+【四】三文件夹结构下怎么编译  
+ 方案A(推荐): 在项目根目录编译  
+    gcc -Wall -g -I include test/test.c src/sort.c src/search.c src/others.c -o test.exe && test.exe  
+  
+ 方案B: 进入test目录编译(注意 ../ 相对路径)  
+    cd /d d:\algorithm_lab\test  
+    gcc -Wall -g -I ../include ../src/sort.c ../src/search.c ../src/others.c test.c -o ../test.exe  
+    ..\test.exe 
+  
+ -I include 的作用:  
+    #include "xxx.h" 时编译器查找顺序:  
+      1. 当前文件所在目录(test/)  
+      2. -I 指定的目录(include/)  
+      3. 系统标准目录  
+    不加 -I include 会报: sort.h: No such file or directory  
+    不要在代码里写 #include "../include/sort.h"(头文件搬家就得改代码)  
+  
+ 两段式编译(进阶):  
+    gcc -Wall -g -I include -c test/test.c  
+    gcc -Wall -g -I include -c src/sort.c  
+    gcc -Wall -g -I include -c src/search.c  
+    gcc -Wall -g -I include -c src/others.c  
+    gcc -g test.o sort.o search.o others.o -o test.exe  
+    优点: 只改一个文件时,只重编那一个,再链接即可 
+  
+【五】VSCode 一键编译运行  
+ 快捷键:  
+    Ctrl+Shift+B   运行默认构建任务(编译并运行)  
+    F5             调试运行(先编译,再用gdb运行)  
+    Ctrl+F5        运行但不调试  
+  
+ 配置位置:  
+    tasks.json   构建任务(编译命令在这里)  
+    launch.json  调试配置(program 指向 test.exe, preLaunchTask 指向编译任务)  
+  
+ 三文件夹结构下,tasks.json 的编译命令要改成:  
+    C:\mingw64\bin\gcc.exe -fdiagnostics-color=always -Wall -g -I include test\test.c src\sort.c src\search.c src\others.c -o test.exe  
+ launch.json 不用改(program 仍是 ${workspaceFolder}\test.exe) 
+  
+【六】终端 vs VSCode 怎么选  
+ 终端手动:  
+   优点: 透明直观、练理解、灵活、不依赖IDE  
+   缺点: 每次敲命令、容易手滑、不能断点调试、错误靠人眼定位  
+ VSCode配置:  
+   优点: 一键操作、错误进问题面板、支持断点调试、配置随项目走  
+   缺点: 有魔法感、依赖扩展、新增.c文件要记得改配置  
+  
+ 二者共用同一个 test.exe:  
+   最后一次编译会覆盖它  
+   exe被占用(程序没退出)时编译会失败,先关掉再编译 
+  
+【七】常见坑速记  
+ 1. 忘了 -I include → 找不到头文件  
+ 2. 新增.c没加进命令行 → undefined reference  
+ 3. 编译失败后直接跑test.exe → 跑的是旧版本(用 && 连接防呆)  
+ 4. Windows运行用 test.exe 或 .\test.exe,别用 ./test.exe(Linux风格)  
+ 5. 想调试必须加 -g  
+ 6. 换到Linux编译时,others.c 用了 sqrt,记得加 -lm  
+================================================== 

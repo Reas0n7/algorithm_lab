@@ -33,20 +33,6 @@ int main()
 
 int main()
 {
-    Link_Stack *s = link_stack_create(); 
-    link_stack_push(s, 9);
-    link_stack_push(s, 6);
-    link_stack_push(s, 5);
-    link_stack_push(s, 4);
-    link_stack_push(s, 3);
-    link_stack_push(s, 2);
-    link_stack_traverse(s);
-    int out = 0;
-    link_stack_pop(s, &out);
-    printf("out: %d\n", out);
-    link_stack_traverse(s);
-    link_stack_destroy(s);
-    s = NULL;
-    link_stack_traverse(s);
+    
     return 0;
 }

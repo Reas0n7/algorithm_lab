@@ -162,21 +162,204 @@ void circ_queue_destroy(Circ_Queue *cq)
     free(cq);
 }
 
-
 //priority queue
+//priority queue in array
+Pri_Queue_Array *pri_queue_array_create(int capacity)
+{
+    if (capacity <= 0) {
+        return NULL;
+    }
+    Pri_Queue_Array *pq = (Pri_Queue_Array*)malloc(sizeof(Pri_Queue_Array));
+    if (pq == NULL) {
+        printf("memory allocation failed\n");
+        return NULL;
+    }
+    pq->capacity = capacity;
+    pq->data = (int*)malloc((pq->capacity) * sizeof(int));
+    if (pq->data == NULL) {
+        printf("memory allocation failed\n");
+        free(pq);
+        return NULL;
+    }
+    pq->size = 0;
+    return pq;
+}
 
+int pri_queue_array_is_empty(Pri_Queue_Array *pq)
+{
+    return pq->size == 0;
+}
 
+int pri_queue_array_is_full(Pri_Queue_Array *pq)
+{
+    return pq->size == pq->capacity;
+}
 
+int pri_queue_array_enqueue(Pri_Queue_Array *pq, int value)
+{
+    if (pri_queue_array_is_full(pq)) {
+        printf("queue is full\n");
+        return 0;
+    }
+    pq->data[pq->size++] = value;
+    return 1;
+}
 
+int pri_queue_array_dequeue(Pri_Queue_Array *pq, int *out)
+{
+    if (out == NULL) {
+        return 0;
+    }
+    if (pri_queue_array_is_empty(pq)) {
+        printf("queue is empty\n");
+        return 0;
+    }
+    int max_idx = 0;
+    for (int i = 1; i < pq->size; i++) {
+        if (pq->data[i] > pq->data[max_idx]) {
+            max_idx = i;
+        }
+    }
+    *out = pq->data[max_idx];
+    pq->data[max_idx] = pq->data[pq->size - 1];
+    pq->size--;
+    return 1;
+}
 
+int pri_queue_array_peek(Pri_Queue_Array *pq, int *out)
+{
+    if (out == NULL) {
+        return 0;
+    }
+    if (pri_queue_array_is_empty(pq)) {
+        printf("queue is empty\n");
+        return 0;
+    }
+    int max_idx = 0;
+    for (int i = 1; i < pq->size; i++) {
+        if (pq->data[i] > pq->data[max_idx]) {
+            max_idx = i;
+        }
+    }
+    *out = pq->data[max_idx];
+    return 1;
+}
 
+void pri_queue_array_destroy(Pri_Queue_Array *pq)
+{
+    if (pq == NULL) {
+        return;
+    }
+    free(pq->data);
+    free(pq);
+}
 
+//priority queue in link list
+Pri_Queue_Link *pri_queue_link_create()
+{
+    Pri_Queue_Link *pq = (Pri_Queue_Link*)malloc(sizeof(Pri_Queue_Link));
+    if (pq == NULL) {
+        printf("memory allocation failed\n");
+        return NULL;
+    }
+    pq->size = 0;
+    pq->head = (Pri_Queue_Link_Node*)malloc(sizeof(Pri_Queue_Link_Node));
+    if (pq->head == NULL) {
+        printf("memory allocation failed\n");
+        free(pq);
+        return NULL;
+    }
+    pq->head->next = NULL;
+    return pq;
 
+}
 
+int pri_queue_link_is_empty(Pri_Queue_Link *pq)
+{
+    return pq->size == 0;
+}
 
+int pri_queue_link_enqueue(Pri_Queue_Link *pq, int value)
+{
+    Pri_Queue_Link_Node *new_node = (Pri_Queue_Link_Node*)malloc(sizeof(Pri_Queue_Link_Node));
+    if (new_node == NULL) {
+        printf("memory allocation failed\n");
+        return 0;
+    }
+    new_node->data = value;
+    Pri_Queue_Link_Node *current = pq->head;
+    while (current->next != NULL) {
+        current = current->next;
+    }
+    current->next = new_node;
+    new_node->next = NULL;
+    pq->size++;
+    return 1;
+}
 
+int pri_queue_link_dequeue(Pri_Queue_Link *pq, int *out)
+{
+    if (pq == NULL || out == NULL) {
+        return 0;
+    }
+    if (pri_queue_link_is_empty(pq)) {
+        printf("queue is empty\n");
+        return 0;
+    }
+    Pri_Queue_Link_Node *prev = pq->head;
+    Pri_Queue_Link_Node *max_prev = pq->head;
+    Pri_Queue_Link_Node *current = pq->head->next;
+    int max_value = current->data;
+    while (current != NULL) {
+        if (current->data > max_value) {
+            max_value = current->data;
+            max_prev = prev;
+        }
+        prev = current;
+        current = current->next;
+    }
+    Pri_Queue_Link_Node *max_node = max_prev->next;
+    *out = max_node->data;
+    max_prev->next = max_node->next;
+    free(max_node);
+    pq->size--;
+    return 1;
+}
 
+int pri_queue_link_peek(Pri_Queue_Link *pq, int *out)
+{
+    if (out == NULL) {
+        return 0;
+    }
+    if (pri_queue_link_is_empty(pq)) {
+        printf("queue is empty\n");
+        return 0;
+    }
+    Pri_Queue_Link_Node *current = pq->head->next;
+    int max_value = current->data;
+    while (current != NULL) {
+        if (current->data > max_value) {
+            max_value = current->data;
+        }
+        current = current->next;
+    }
+    *out = max_value;
+    return 1;
+}
 
+void pri_queue_link_destroy(Pri_Queue_Link *pq)
+{
+    if (pq == NULL) {
+        return;
+    }
+    Pri_Queue_Link_Node *current = pq->head;
+    while (current != NULL) {
+        Pri_Queue_Link_Node *next = current->next;
+        free(current);
+        current = next;
+    }
+    free(pq);
+}
 
 
 

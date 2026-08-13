@@ -39,22 +39,43 @@ void circ_queue_destroy(Circ_Queue *cq);
 
 
 //priority queue
-typedef struct PQ_Array {
+//priority queue in array
+typedef struct Pri_Queue_Array {
     int *data;
     int size;
     int capacity;
-}PQ_Array;
+}Pri_Queue_Array;
+Pri_Queue_Array *pri_queue_array_create(int capacity);
+int pri_queue_array_is_empty(Pri_Queue_Array *pq);
+int pri_queue_array_is_full(Pri_Queue_Array *pq);
+int pri_queue_array_enqueue(Pri_Queue_Array *pq, int value);
+int pri_queue_array_dequeue(Pri_Queue_Array *pq, int *out);
+int pri_queue_array_peek(Pri_Queue_Array *pq, int *out);
+void pri_queue_array_destroy(Pri_Queue_Array *pq);
 
+//priority queue in link list
+typedef struct Pri_Queue_Link_Node {
+    int data;
+    struct Pri_Queue_Link_Node *next;
+}Pri_Queue_Link_Node;
 
-typedef struct PQ_Link_Node {
-    int* data;
-    struct PQ_Link_Node *next;
-}PQ_Link_Node;
-
-typedef struct PQ_Link {
-    PQ_Link_Node *head;
+typedef struct Pri_Queue_Link {
+    Pri_Queue_Link_Node *head;
     int size;
-}PQ_Link;
+}Pri_Queue_Link;
+Pri_Queue_Link *pri_queue_link_create();
+int pri_queue_link_is_empty(Pri_Queue_Link *pq);
+int pri_queue_link_enqueue(Pri_Queue_Link *pq, int value);
+int pri_queue_link_dequeue(Pri_Queue_Link *pq, int *out);
+int pri_queue_link_peek(Pri_Queue_Link *pq, int *out);
+void pri_queue_link_destroy(Pri_Queue_Link *pq);
+
+
+
+
+
+
+
 
 #ifdef __cplusplus
 }

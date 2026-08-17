@@ -50,8 +50,9 @@ Tree_Node *tree_search(Tree_Node *root, int value)
 {
     if (root == NULL) return NULL;
     if (root->data == value) return root;
-    tree_search(root->right, value);
-    tree_search(root->left, value);
+    Tree_Node *found = tree_search(root->left, value);
+    if (found != NULL) return found;
+    return tree_search(root->right, value);
 }
 
 int tree_find_max(Tree_Node *root)
@@ -83,103 +84,228 @@ int tree_height(Tree_Node *root)
 void tree_destroy(Tree_Node *root)
 {
     if (root == NULL) return;
-    free(root->left);
-    free(root->right);
+    tree_destroy(root->left);
+    tree_destroy(root->right);
+    free(root);
 }
 
 //BST
 BST_Node *bst_create_node(int value)
 {
-
+    BST_Node *node = (BST_Node*)malloc(sizeof(BST_Node));
+    if (node == NULL) {
+        printf("memory allocation failed\n");
+        return NULL;
+    }
+    node->data = value;
+    node->left = NULL;
+    node->right = NULL;
+    return node;
 }
 
 void bst_traverse_preorder(BST_Node *root)
 {
-
+    if (root == NULL) return;
+    printf("%d ", root->data);
+    bst_traverse_preorder(root->left);
+    bst_traverse_preorder(root->right);
 }
 
 void bst_traverse_inorder(BST_Node *root)
 {
-    
+    if (root == NULL) return;
+    bst_traverse_inorder(root->left);
+    printf("%d ", root->data);
+    bst_traverse_inorder(root->right);
 }
 
 void bst_traverse_postorder(BST_Node *root)
 {
-    
+    if (root == NULL) return;
+    bst_traverse_postorder(root->left);
+    bst_traverse_postorder(root->right);
+    printf("%d ", root->data);
 }
 
 int bst_height(BST_Node *root)
 {
-
+    if (root == NULL) return 0;
+    int left_height = bst_height(root->left);
+    int right_height = bst_height(root->right);
+    return (left_height > right_height ? left_height : right_height) + 1; 
 }
 
 BST_Node *bst_find_min(BST_Node *root)
 {
-
+    if (root == NULL) return NULL;
+    BST_Node *current = root;
+    while (current->left != NULL) {
+        current = current->left;
+    }
+    return current;
 }
 
 BST_Node *bst_find_max(BST_Node *root)
 {
-
+    if (root == NULL) return NULL;
+    BST_Node *current = root;
+    while (current->right != NULL) {
+        current = current->right;
+    }
+    return current;
 }
 
 BST_Node *bst_search(BST_Node *root, int value)
 {
-    
+    if (root == NULL) return NULL;
+    if (root->data == value) return root;
+    if (root->data > value) return bst_search(root->left, value);
+    return bst_search(root->right, value);
 }
 
 BST_Node *bst_insert(BST_Node *root, int value)
 {
-
+    if (root == NULL) return bst_create_node(value);
+    if (root->data > value) {
+        root->left = bst_insert(root->left, value);
+    } else if (root->data < value) {
+        root->right = bst_insert(root->right, value);
+    }
+    return root;
 }
 
 BST_Node *bst_delete(BST_Node *root, int value)
 {
-
+    if (root == NULL) return NULL;
+    if (root->data > value) {
+        root->left = bst_delete(root->left, value);
+    } else if (root->data < value) {
+        root->right = bst_delete(root->right, value);
+    } else {
+        if (root->left == NULL && root->right == NULL) {
+            free(root);
+            return NULL;
+        } else if (root->left == NULL) {
+            BST_Node *temp = root->right;
+            free(root);
+            return temp;
+        } else if (root->right == NULL) {
+            BST_Node *temp = root->left;
+            free(root);
+            return temp;
+        } else {
+            BST_Node *successor = bst_find_min(root->right);
+            root->data = successor->data;
+            root->right = bst_delete(root->right, successor->data);
+        }
+    }
+    return root;
 }
 
 void bst_destroy(BST_Node *root)
 {
-
+    if (root == NULL) return;
+    bst_destroy(root->left);
+    bst_destroy(root->right);
+    free(root);
 }
-
-
-
-
-
-
-
-
-
 
 
 //AVL
-int avl_node_height(Tree_Node *node)
+AVL_Node *avl_create_node(int value)
 {
-
+    AVL_Node *node = (AVL_Node*)malloc(sizeof(AVL_Node));
+    if (node == NULL) {
+        printf("memory allocation failed\n");
+        return NULL;
+    }
+    node->data = value;
+    node->height = 1;
+    node->left = NULL;
+    node->right = NULL;
+    return node;
 }
 
-int avl_balance_factor(Tree_Node *node)
+void avl_traverse_preorder(AVL_Node *root)
 {
-
+    if (root == NULL) return;
+    printf("%d ", root->data);
+    avl_traverse_preorder(root->left);
+    avl_traverse_preorder(root->right);
 }
 
-Tree_Node *avl_rotate_left(Tree_Node *node)
+void avl_traverse_inorder(AVL_Node *root)
 {
-
+    if (root == NULL) return;
+    avl_traverse_inorder(root->left);
+    printf("%d ", root->data);
+    avl_traverse_inorder(root->right);
 }
 
-Tree_Node *avl_rotate_right(Tree_Node *node)
+void avl_traverse_postorder(AVL_Node *root)
+{
+    if (root == NULL) return;
+    avl_traverse_postorder(root->left);
+    avl_traverse_postorder(root->right);
+    printf("%d ", root->data);
+}
+
+int avl_node_height(AVL_Node *node)
+{
+    return node ? node->height : 0;
+}
+
+int avl_balance_factor(AVL_Node *node)
+{
+    if (node == NULL) return 0;
+    return avl_node_height(node->left) - avl_node_height(node->right);
+}
+
+AVL_Node *avl_find_max(AVL_Node *root)
+{
+    if (root == NULL) return NULL;
+    AVL_Node *current = root;
+    while (current->right != NULL) {
+        current = current->right;
+    }
+    return current;
+}
+
+AVL_Node *avl_find_min(AVL_Node *root)
+{
+    if (root == NULL) return NULL;
+    AVL_Node *current = root;
+    while (current->left != NULL) {
+        current = current->left;
+    }
+    return current;
+}
+
+
+AVL_Node *avl_rotate_left(AVL_Node *node)
 {
     
 }
 
-Tree_Node *avl_insert(Tree_Node *root, int value)
+AVL_Node *avl_rotate_right(AVL_Node *node)
+{
+    
+}
+
+AVL_Node *avl_insert(AVL_Node *root, int value)
 {
 
 }
 
-Tree_Node *avl_delete(Tree_Node *root, int value)
+AVL_Node *avl_delete(AVL_Node *root, int value)
 {
     
+}
+
+void avl_destroy(AVL_Node *root)
+{
+    if (root == NULL) return;
+    avl_destroy(root->left);
+    avl_destroy(root->right);
+    free(root);
 }

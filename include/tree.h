@@ -64,7 +64,7 @@ void avl_destroy(AVL_Node *root);
 
 
 
-
+void tree_print(AVL_Node *root, int depth);
 
 
 

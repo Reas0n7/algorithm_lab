@@ -284,21 +284,98 @@ AVL_Node *avl_find_min(AVL_Node *root)
 
 AVL_Node *avl_rotate_left(AVL_Node *node)
 {
-    
+    AVL_Node *new_node = node->right;
+    node->right = new_node->left;
+    new_node->left = node;
+    node->height = (avl_node_height(node->right) > avl_node_height(node->left) ? avl_node_height(node->right) : avl_node_height(node->left)) + 1;
+    new_node->height = (avl_node_height(new_node->right) > avl_node_height(new_node->left) ? avl_node_height(new_node->right) : avl_node_height(new_node->left)) + 1;
+    return new_node;
 }
 
 AVL_Node *avl_rotate_right(AVL_Node *node)
 {
-    
+    AVL_Node *new_node = node->left;
+    node->left = new_node->right;
+    new_node->right = node;
+    node->height = (avl_node_height(node->right) > avl_node_height(node->left) ? avl_node_height(node->right) : avl_node_height(node->left)) + 1;
+    new_node->height = (avl_node_height(new_node->right) > avl_node_height(new_node->left) ? avl_node_height(new_node->right) : avl_node_height(new_node->left)) + 1;
+    return new_node;
 }
 
 AVL_Node *avl_insert(AVL_Node *root, int value)
 {
-
+    if (root == NULL) return avl_create_node(value);
+    if (value < root->data) {
+        root->left = avl_insert(root->left, value);
+    } else if (value > root->data) {
+        root->right = avl_insert(root->right, value);
+    } else {
+        return root;
+    }
+    root->height = (avl_node_height(root->right) > avl_node_height(root->left) ? avl_node_height(root->right) : avl_node_height(root->left)) + 1;
+    int balance_factor = avl_balance_factor(root);
+    if (balance_factor > 1 && value < root->left->data) {
+        //LL
+        return avl_rotate_right(root);
+    } else if (balance_factor < -1 && value > root->right->data) {
+        //RR
+        return avl_rotate_left(root);
+    } else if (balance_factor > 1 && value > root->left->data) {
+        //LR
+        root->left = avl_rotate_left(root->left);
+        return avl_rotate_right(root);
+    } else if (balance_factor < -1 && value < root->right->data) {
+        //RL
+        root->right = avl_rotate_right(root->right);
+        return avl_rotate_left(root);
+    }
+    return root;
 }
 
 AVL_Node *avl_delete(AVL_Node *root, int value)
 {
+    if (root == NULL) return NULL;
+    if (value < root->data) {
+        root->left = avl_delete(root->left, value);
+    } else if (value > root->data) {
+        root->right = avl_delete(root->right, value);
+    } else {
+        if (root->left == NULL && root->right == NULL) {
+            free(root);
+            return NULL;
+        } else if (root->left == NULL) {
+            AVL_Node *temp = root->right;
+            free(root);
+            return temp;
+        } else if (root->right == NULL) {
+            AVL_Node *temp = root->right;
+            free(root);
+            return temp;
+        } else {
+            AVL_Node *successor = avl_find_min(root->right);
+            root->data = successor->data;
+            root->right = avl_delete(root->right, successor->data);
+        }
+    }
+    if (root == NULL) return NULL;
+    root->height = (avl_node_height(root->right) > avl_node_height(root->left) ? avl_node_height(root->right) : avl_node_height(root->left)) + 1;
+    int balance_factor = avl_balance_factor(root);
+    if (balance_factor > 1 && value < root->left->data) {
+        //LL
+        return avl_rotate_right(root);
+    } else if (balance_factor < -1 && value > root->right->data) {
+        //RR
+        return avl_rotate_left(root);
+    } else if (balance_factor > 1 && value > root->left->data) {
+        //LR
+        root->left = avl_rotate_left(root->left);
+        return avl_rotate_right(root);
+    } else if (balance_factor < -1 && value < root->right->data) {
+        //RL
+        root->right = avl_rotate_right(root->right);
+        return avl_rotate_left(root);
+    }
+    return root;
     
 }
 
@@ -308,4 +385,18 @@ void avl_destroy(AVL_Node *root)
     avl_destroy(root->left);
     avl_destroy(root->right);
     free(root);
+}
+
+/* 横向旋转 90° 的树：根在最左，越往下越缩进 */
+void tree_print(AVL_Node *root, int depth)
+{
+    if (root == NULL) {
+        return;
+    }
+    tree_print(root->right, depth + 1);          /* 先画右子树（上面） */
+    for (int i = 0; i < depth; i++) {
+        printf("    ");                          /* 深度越深，缩进越多 */
+    }
+    printf("(%d)\n", root->data);                /* 画当前节点 */
+    tree_print(root->left, depth + 1);           /* 再画左子树（下面） */
 }
